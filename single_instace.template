@@ -1,0 +1,324 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "48d1e447-9a17-4120-b404-0dd3f8e2634f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -370,
+                    "y": 150
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "8a70deba-cfe7-4f50-864c-7386fdc3e694"
+                ]
+            }
+        }
+    },
+    "Resources": {
+        "Server": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "ServerName"
+                        }
+                    }
+                ],
+                "SecurityGroupIds": {
+                    "Ref": "SecurityGroups"
+                },
+                "InstanceType": {
+                    "Ref": "ServerInstanceType"
+                },
+                "SubnetId": {
+                    "Ref": "ServerSubnets"
+                },
+                "ImageId": "ami-a77c30c1",
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvda",
+                        "Ebs": {
+                            "VolumeType": "gp2",
+                            "VolumeSize": {
+                                "Ref": "ServerVolumeSize"
+                            }
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "whoami >> /tmp/init.log\n",
+                                "yum update -y\n",
+                                "echo 'update completed' >> /tmp/init.log\n",
+                                "# Create users from the metadata\n",
+                                "/opt/aws/bin/cfn-init -v --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " --resource Server",
+                                " --configsets CreateUsers,InitServer",
+                                " --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n",
+                                "echo 'init completed' >> /tmp/init.log\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Metadata": {
+                "Comment1": "Create users.",
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "CreateUsers": [
+                            "CreateUsers"
+                        ],
+                        "InitServer": [
+                            "InitServer"
+                        ]
+                    },
+                    "CreateUsers": {
+                        "commands": {
+                            "createuser": {
+                                "command": {
+                                    "Fn::Join": [
+                                        " ",
+                                        [
+                                            "for user in",
+                                            {
+                                                "Ref": "ServerUser"
+                                            },
+                                            "; do useradd ${user};",
+                                            "cp -a /home/ec2-user/.ssh /home/${user}/; chown -R ${user}.${user} /home/${user}/.ssh;",
+                                            "cp /etc/sudoers.d/cloud-init /etc/sudoers.d/${user}; sed -i \"s/ec2-user/${user}/\" /etc/sudoers.d/${user};",
+                                            "done"
+                                        ]
+                                    ]
+                                },
+                                "test": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "test -n \"",
+                                            {
+                                                "Ref": "ServerUser"
+                                            },
+                                            "\""
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "InitServer": {
+                        "services": {
+                            "sysvinit": {
+                                "iptables": {
+                                    "enabled": "false",
+                                    "ensureRunning": "false"
+                                },
+                                "ip6tables": {
+                                    "enabled": "false",
+                                    "ensureRunning": "false"
+                                }
+                            }
+                        },
+                        "packages": {
+                            "yum": {
+                                "dstat": []
+                            }
+                        },
+                        "commands": {
+                            "changeTimeZone": {
+                                "command": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "sed -i 's/ZONE=\"UTC\"/ZONE=\"Japan\"/' /etc/sysconfig/clock",
+                                            "ln -sf /usr/share/zoneinfo/Japan /etc/localtime"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "setupSysctl": {
+                                "command": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "cat >> /etc/sysctl.conf << EOF",
+                                            "",
+                                            "net.ipv4.tcp_tw_reuse = 1",
+                                            "net.ipv4.tcp_tw_recycle = 0",
+                                            "net.ipv4.tcp_fin_timeout = 10",
+                                            "net.ipv4.tcp_max_syn_backlog = 20480",
+                                            "net.ipv4.tcp_rmem = 4096 873800 1747600",
+                                            "net.ipv4.tcp_wmem = 4096 873800 1747600",
+                                            "net.ipv4.tcp_mem = 2048000 2048000 2048000",
+                                            "net.ipv4.ip_local_port_range = 11000 65500",
+                                            "net.ipv4.tcp_keepalive_time = 10",
+                                            "net.ipv4.tcp_keepalive_probes = 4",
+                                            "net.ipv4.tcp_keepalive_intvl = 5",
+                                            "net.ipv4.tcp_rfc1337 = 1",
+                                            "fs.file-max = 100000",
+                                            "net.core.somaxconn = 65535",
+                                            "EOF",
+                                            "sysctl -p"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "setupLimits": {
+                                "command": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "cat >> /etc/security/limits.d/90-nproc.conf << EOF",
+                                            "*  soft    nproc   65535",
+                                            "root   soft    nproc   unlimited",
+                                            "EOF",
+                                            "cat >> /etc/security/limits.conf << EOF",
+                                            "",
+                                            "*  soft nofile  65535",
+                                            "*  hard nofile  65535",
+                                            "EOF"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "addServerName": {
+                                "command": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "sed -i '36 s/\\h/\\h(",
+                                            {
+                                                "Ref": "ServerName"
+                                            },
+                                            ")/' /etc/bashrc"
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "AWS::CloudFormation::Designer": {
+                    "id": "48d1e447-9a17-4120-b404-0dd3f8e2634f"
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "ServerUser": {
+            "Type": "String",
+            "Description": "Add user to instance. Seperated by space. Example: user1 user2 user3 ..."
+        },
+        "ServerSubnets": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "The list of SubnetIds in your Virtual Private Cloud (VPC)"
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+        },
+        "ServerName": {
+            "Type": "String",
+            "Description": "The name of server.The name can contain only a-zA-Z0-9 and . and - and _. Max length is 20.",
+            "Default": "MyServer",
+            "AllowedPattern": "^[a-zA-Z0-9._-]{1,20}$",
+            "ConstraintDescription": "The name can contain only a-zA-Z0-9 and . and - and _"
+        },
+        "SecurityGroups": {
+            "Type": "List<AWS::EC2::SecurityGroup::Id>",
+            "Description": "SecurityGroups for server."
+        },
+        "ServerInstanceType": {
+            "Description": "EC2 instance type",
+            "Type": "String",
+            "Default": "t2.small",
+            "AllowedValues": [
+                "t1.micro",
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m1.small",
+                "m1.medium",
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "c1.medium",
+                "c1.xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "g2.2xlarge",
+                "g2.8xlarge",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge",
+                "d2.xlarge",
+                "d2.2xlarge",
+                "d2.4xlarge",
+                "d2.8xlarge",
+                "hi1.4xlarge",
+                "hs1.8xlarge",
+                "cr1.8xlarge",
+                "cc2.8xlarge",
+                "cg1.4xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "ServerVolumeSize": {
+            "Type": "Number",
+            "Description": "The size of the volume, in GiBs. 1-16384 for gp2, 1-1024 for standard.",
+            "Default": "50",
+            "MinValue": "1",
+            "MaxValue": "16384"
+        }
+    },
+    "Mappings": {},
+    "Conditions": {}
+}
