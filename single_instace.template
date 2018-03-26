@@ -104,9 +104,13 @@
                                             {
                                                 "Ref": "ServerUser"
                                             },
-                                            "; do useradd ${user};",
-                                            "cp -a /home/ec2-user/.ssh /home/${user}/; chown -R ${user}.${user} /home/${user}/.ssh;",
-                                            "cp /etc/sudoers.d/cloud-init /etc/sudoers.d/${user}; sed -i \"s/ec2-user/${user}/\" /etc/sudoers.d/${user};",
+                                            "; do useradd ${user}; ",
+                                            "su -c 'echo -e \"\\n\" | ssh-keygen -t rsa -N \"\"' - ${user}; ",
+                                            "su -c 'cat .ssh/id_rsa.pub > .ssh/authorized_keys' - ${user}; ",
+                                            "su -c 'chmod 600 .ssh/authorized_keys' - ${user}; ",
+                                            "echo -e \"\\necho 'Login key: ~/.ssh/id_rsa'\" >> /home/${user}/.bash_profile; ",
+                                            "cp /etc/sudoers.d/cloud-init /etc/sudoers.d/${user}; ",
+                                            "sed -i \"s/ec2-user/${user}/\" /etc/sudoers.d/${user}; ",
                                             "done"
                                         ]
                                     ]
