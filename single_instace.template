@@ -1,24 +1,7 @@
 {
+    "Description": "Create EC2 instance include OS init configuration",
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Metadata": {
-        "AWS::CloudFormation::Designer": {
-            "48d1e447-9a17-4120-b404-0dd3f8e2634f": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": -370,
-                    "y": 150
-                },
-                "z": 0,
-                "embeds": [],
-                "isassociatedwith": [
-                    "8a70deba-cfe7-4f50-864c-7386fdc3e694"
-                ]
-            }
-        }
-    },
+    "Metadata": {},
     "Resources": {
         "Server": {
             "Type": "AWS::EC2::Instance",
@@ -105,9 +88,9 @@
                                                 "Ref": "ServerUser"
                                             },
                                             "; do useradd ${user}; ",
-                                            "su -c 'echo -e \"\\n\" | ssh-keygen -t rsa -N \"\"' - ${user}; ",
-                                            "su -c 'cat .ssh/id_rsa.pub > .ssh/authorized_keys' - ${user}; ",
-                                            "su -c 'chmod 600 .ssh/authorized_keys' - ${user}; ",
+                                            "su - ${user} -c 'echo -e \"\\n\" | ssh-keygen -t rsa -N \"\"'; ",
+                                            "su - ${user} -c 'cat .ssh/id_rsa.pub > .ssh/authorized_keys'; ",
+                                            "su - ${user} -c 'chmod 600 .ssh/authorized_keys'; ",
                                             "echo -e \"\\necho 'Login key: ~/.ssh/id_rsa'\" >> /home/${user}/.bash_profile; ",
                                             "cp /etc/sudoers.d/cloud-init /etc/sudoers.d/${user}; ",
                                             "sed -i \"s/ec2-user/${user}/\" /etc/sudoers.d/${user}; ",
@@ -140,6 +123,34 @@
                                 "ip6tables": {
                                     "enabled": "false",
                                     "ensureRunning": "false"
+                                },
+                                "acpid": {
+                                    "enabled": {"Ref": "EnabledServiceAcpid"},
+                                    "ensureRunning": {"Ref": "EnabledServiceAcpid"}
+                                },
+                                "atd": {
+                                    "enabled": {"Ref": "EnabledServiceAtd"},
+                                    "ensureRunning": {"Ref": "EnabledServiceAtd"}
+                                },
+                                "mdmonitor": {
+                                    "enabled": {"Ref": "EnabledServiceMdmonitor"},
+                                    "ensureRunning": {"Ref": "EnabledServiceMdmonitor"}
+                                },
+                                "netfs": {
+                                    "enabled": {"Ref": "EnabledServiceNFS"},
+                                    "ensureRunning": {"Ref": "EnabledServiceNFS"}
+                                },
+                                "nfslock": {
+                                    "enabled": {"Ref": "EnabledServiceNFS"},
+                                    "ensureRunning": {"Ref": "EnabledServiceNFS"}
+                                },
+                                "rpcbind": {
+                                    "enabled": {"Ref": "EnabledServiceNFS"},
+                                    "ensureRunning": {"Ref": "EnabledServiceNFS"}
+                                },
+                                "rpcgssd": {
+                                    "enabled": {"Ref": "EnabledServiceNFS"},
+                                    "ensureRunning": {"Ref": "EnabledServiceNFS"}
                                 }
                             }
                         },
@@ -156,6 +167,17 @@
                                         [
                                             "sed -i 's/ZONE=\"UTC\"/ZONE=\"Japan\"/' /etc/sysconfig/clock",
                                             "ln -sf /usr/share/zoneinfo/Japan /etc/localtime"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "historySettings": {
+                                "command": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "sed -i 's/HISTSIZE=.*/HISTSIZE=99999/' /etc/profile",
+                                            "sed -i \"/HISTSIZE=/a HISTTIMEFORMAT='%Y/%m/%d %H:%M:%S '\" /etc/profile"
                                         ]
                                     ]
                                 }
@@ -210,7 +232,7 @@
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "sed -i '36 s/\\h/\\h(",
+                                            "sed -i '/&& PS1/ s/\\h/\\h(",
                                             {
                                                 "Ref": "ServerName"
                                             },
@@ -221,9 +243,6 @@
                             }
                         }
                     }
-                },
-                "AWS::CloudFormation::Designer": {
-                    "id": "48d1e447-9a17-4120-b404-0dd3f8e2634f"
                 }
             }
         }
@@ -258,60 +277,72 @@
             "Type": "String",
             "Default": "t2.small",
             "AllowedValues": [
-                "t1.micro",
                 "t2.nano",
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
                 "t2.large",
-                "m1.small",
-                "m1.medium",
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.medium",
-                "m3.large",
-                "m3.xlarge",
-                "m3.2xlarge",
+                "t2.xlarge",
+                "t2.2xlarge",
+                "t3.nano",
+                "t3.micro",
+                "t3.small",
+                "t3.medium",
+                "t3.large",
+                "t3.xlarge",
+                "t3.2xlarge",
                 "m4.large",
                 "m4.xlarge",
                 "m4.2xlarge",
                 "m4.4xlarge",
                 "m4.10xlarge",
-                "c1.medium",
-                "c1.xlarge",
-                "c3.large",
-                "c3.xlarge",
-                "c3.2xlarge",
-                "c3.4xlarge",
-                "c3.8xlarge",
+                "m4.16xlarge",
+                "m5.large",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.12xlarge",
+                "m5.24xlarge",
+                "m5d.large",
+                "m5d.xlarge",
+                "m5d.2xlarge",
+                "m5d.4xlarge",
+                "m5d.12xlarge",
+                "m5d.24xlarge",
                 "c4.large",
                 "c4.xlarge",
                 "c4.2xlarge",
                 "c4.4xlarge",
                 "c4.8xlarge",
-                "g2.2xlarge",
-                "g2.8xlarge",
-                "r3.large",
-                "r3.xlarge",
-                "r3.2xlarge",
-                "r3.4xlarge",
-                "r3.8xlarge",
-                "i2.xlarge",
-                "i2.2xlarge",
-                "i2.4xlarge",
-                "i2.8xlarge",
-                "d2.xlarge",
-                "d2.2xlarge",
-                "d2.4xlarge",
-                "d2.8xlarge",
-                "hi1.4xlarge",
-                "hs1.8xlarge",
-                "cr1.8xlarge",
-                "cc2.8xlarge",
-                "cg1.4xlarge"
+                "c5.large",
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.18xlarge",
+                "c5d.xlarge",
+                "c5d.2xlarge",
+                "c5d.4xlarge",
+                "c5d.9xlarge",
+                "c5d.18xlarge",
+                "r4.large",
+                "r4.xlarge",
+                "r4.2xlarge",
+                "r4.4xlarge",
+                "r4.8xlarge",
+                "r4.16xlarge",
+                "r5.large",
+                "r5.xlarge",
+                "r5.2xlarge",
+                "r5.4xlarge",
+                "r5.12xlarge",
+                "r5.24xlarge",
+                "r5d.large",
+                "r5d.xlarge",
+                "r5d.2xlarge",
+                "r5d.4xlarge",
+                "r5d.12xlarge",
+                "r5d.24xlarge"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
@@ -321,6 +352,46 @@
             "Default": "50",
             "MinValue": "1",
             "MaxValue": "16384"
+        },
+        "EnabledServiceAcpid": {
+            "Type": "String",
+            "Default": "false",
+            "Description": "acpid:Advanced Configuration and Power Interface event daemon. true or false.",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "Parameter 'EnabledServiceAcpid' must be true or false."
+        },
+        "EnabledServiceAtd": {
+            "Type": "String",
+            "Default": "false",
+            "Description": "atd:atd runs jobs queued by at. If you are not using at command disable it. true or false.",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "Parameter 'EnabledServiceAtd' must be true or false."
+        },
+        "EnabledServiceMdmonitor": {
+            "Type": "String",
+            "Default": "false",
+            "Description": "mdmonitor:software RAID monitoring and management service. If you are not using software RAID disable it. This is not required for hardware RAID setup as they comes with their own programs. true or false.",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "Parameter 'EnabledServiceMdmonitor' must be true or false."
+        },
+        "EnabledServiceNFS": {
+            "Type": "String",
+            "Default": "false",
+            "Description": "netfs, nfslock, rpcgssd, rpcidmapd, and portmap:Mount and configure Linux network network filesystems (NFS). If you are not using NFS client/server technology disable it. true or false.",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "Parameter 'EnabledServiceNFS' must be true or false."
         }
     },
     "Mappings": {},
