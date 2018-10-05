@@ -1,0 +1,687 @@
+{
+    "Description": "Create Subnet (dev-pub,dev-web,dev-pri,stg-pub,stg-web,stg-pri,pro-pub,pro-web,pro-pri). Subnet ip block will be /21.",
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {},
+    "Resources": {
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": {"Ref": "VpcIpBlock"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {"Ref": "VpcName"}
+                    }
+                ]
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {"Fn::Join": ["-", [{"Ref": "VpcName"}, "igw"]]}
+                    }
+                ]
+            }
+        },
+        "AttachGateway": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {"Ref": "VPC"},
+                "InternetGatewayId": {"Ref": "InternetGateway"}
+            }
+        },
+        "DevPubD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [0, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-pubD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevPubC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [1, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-pubC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevPubA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [2, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-pubA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevWebD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [3, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-webD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevWebC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [4, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-webC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevWebA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [5, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-webA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevPriD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [6, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-priD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevPriC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [7, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-priC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevPriA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [8, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-priA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "StgPubD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [9, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-pubD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgPubC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [10, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-pubC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgPubA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [11, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-pubA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgWebD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [12, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-webD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgWebC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [13, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-webC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgWebA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [14, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-webA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgPriD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [15, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-priD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgPriC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [16, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-priC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgPriA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [17, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-priA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "ProPubD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [18, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-pubD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProPubC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [19, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-pubC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProPubA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [20, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-pubA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProWebD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [21, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-webD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProWebC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [22, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-webC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProWebA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [23, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-webA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProPriD": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1d",
+                "CidrBlock": {
+                    "Fn::Select": [24, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-priD"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProPriC": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "CidrBlock": {
+                    "Fn::Select": [25, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-priC"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProPriA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "CidrBlock": {
+                    "Fn::Select": [26, {"Fn::Cidr": [{"Ref": "VpcIpBlock"}, 27, 11]}]
+                },
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-priA"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "DevPublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "dev-pub"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "StgPublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "stg-pub"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "ProPublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {"Ref": "VPC"},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "pro-pub"
+                    }
+                ]
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "DevPublicRoute": {
+            "Type" : "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {"Ref": "DevPublicRouteTable"},
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {"Ref": "InternetGateway"}
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "StgPublicRoute": {
+            "Type" : "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {"Ref": "StgPublicRouteTable"},
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {"Ref": "InternetGateway"}
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "ProPublicRoute": {
+            "Type" : "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {"Ref": "ProPublicRouteTable"},
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {"Ref": "InternetGateway"}
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "DevSubnetRouteTableAssociationD": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "DevPubD" },
+                "RouteTableId": {"Ref": "DevPublicRouteTable"}
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevSubnetRouteTableAssociationC": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "DevPubC" },
+                "RouteTableId": {"Ref": "DevPublicRouteTable"}
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "DevSubnetRouteTableAssociationA": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "DevPubA" },
+                "RouteTableId": {"Ref": "DevPublicRouteTable"}
+            },
+            "Condition": "IsCreateForDev"
+        },
+        "StgSubnetRouteTableAssociationD": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "StgPubD" },
+                "RouteTableId": {"Ref": "StgPublicRouteTable"}
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgSubnetRouteTableAssociationC": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "StgPubC" },
+                "RouteTableId": {"Ref": "StgPublicRouteTable"}
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "StgSubnetRouteTableAssociationA": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "StgPubA" },
+                "RouteTableId": {"Ref": "StgPublicRouteTable"}
+            },
+            "Condition": "IsCreateForStg"
+        },
+        "ProSubnetRouteTableAssociationD": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "ProPubD" },
+                "RouteTableId": {"Ref": "ProPublicRouteTable"}
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProSubnetRouteTableAssociationC": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "ProPubC" },
+                "RouteTableId": {"Ref": "ProPublicRouteTable"}
+            },
+            "Condition": "IsCreateForPro"
+        },
+        "ProSubnetRouteTableAssociationA": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {"Ref": "ProPubA" },
+                "RouteTableId": {"Ref": "ProPublicRouteTable"}
+            },
+            "Condition": "IsCreateForPro"
+        }
+    },
+    "Parameters": {
+        "VpcName": {
+            "Type": "String",
+            "Description": "Name of VPC",
+            "Default": "project_name"
+        },
+        "VpcIpBlock": {
+            "Type": "String",
+            "Description": "IP block of VPC",
+            "Default": "10.0.0.0/16",
+            "AllowedPattern": "^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$"
+        },
+        "CreateSubnetForDev": {
+            "Type": "String",
+            "Description": "It will create subnet for 'dev' if true. dev-pubA/dev-pubC/dev-pubD/dev-webA/dev-webC/dev-webD/dev-priA/dev-priC/dev-priD will be created. Subnet ip block will be /21.",
+            "Default": "true",
+            "AllowedValues": [
+                "true",
+                "false"
+            ]
+        },
+        "CreateSubnetForStg": {
+            "Type": "String",
+            "Description": "It will create subnet for 'stg' if true. stg-pubA/stg-pubC/stg-pubD/stg-webA/stg-webC/stg-webD/stg-priA/stg-priC/stg-priD will be created. Subnet ip block will be /21.",
+            "Default": "true",
+            "AllowedValues": [
+                "true",
+                "false"
+            ]
+        },
+        "CreateSubnetForPro": {
+            "Type": "String",
+            "Description": "It will create subnet for 'pro' if true. pro-pubA/pro-pubC/pro-pubD/pro-webA/pro-webC/pro-webD/pro-priA/pro-priC/pro-priD will be created. Subnet ip block will be /21.",
+            "Default": "true",
+            "AllowedValues": [
+                "true",
+                "false"
+            ]
+        }
+    },
+    "Conditions": {
+        "IsCreateForDev": {
+            "Fn::Equals": [{"Ref": "CreateSubnetForDev"}, "true"]
+        },
+        "IsCreateForStg": {
+            "Fn::Equals": [{"Ref": "CreateSubnetForStg"}, "true"]
+        },
+        "IsCreateForPro": {
+            "Fn::Equals": [{"Ref": "CreateSubnetForPro"}, "true"]
+        }
+    }
+}
